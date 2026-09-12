@@ -1,6 +1,6 @@
 {
   "name": "figure-forge-studio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A compact browser-based 3D character customizer and viewer.",
   "private": true,
   "scripts": {

@@ -406,13 +406,15 @@
     var val = document.getElementById("val-" + id.replace("color-", ""));
     input.value = obj[key];
     if (val) val.textContent = obj[key];
-    input.addEventListener("input", function(){
+    function applyColor(){
       obj[key] = input.value;
       if (val) val.textContent = input.value;
       state.archetype = "Custom";
       buildCharacter();
       refreshExport();
-    });
+    }
+    input.addEventListener("input", applyColor);
+    input.addEventListener("change", applyColor);
     registry.push({ type:"color", id:id, obj:obj, key:key });
   }
 
@@ -1073,9 +1075,15 @@
     return new THREE.Mesh(geometry, materials);
   }
 
-  function tintFromHex(mat, hex, strength){
+  function tintFromHex(mat, hex){
     if (!mat) return;
-    mat.color.set(hex).lerp(new THREE.Color(0xffffff), strength);
+    /* Textured materials multiply the map by `color`. Apply the selected
+       color directly (rather than a nearly-white tint) and add a small
+       emissive contribution so a change remains unmistakable in the studio
+       lighting. */
+    mat.color.set(hex);
+    mat.emissive.copy(mat.color).multiplyScalar(0.11);
+    mat.needsUpdate = true;
   }
 
   function applyRealCharacterState(){
@@ -1083,10 +1091,10 @@
     var b=state.body, p=state.palette, w=state.wardrobe;
     var width=(0.86 + b.build*0.28) * (0.82 + b.shoulderWidth*0.18);
     realCharacter.scale.set(realBaseScale*width, realBaseScale*b.height, realBaseScale*(0.9+b.build*0.18));
-    ["SkinTorso","SkinHip","SkinHand","SkinNeck","Fingernails","Nipples","SkinHead","SkinScalp","Lips","Nostrils","Eyebrows","Eyelashes","EyeSocket","Lacrimal"].forEach(function(n){ tintFromHex(realMaterials[n],p.skin,0.7); });
-    ["LIris","RIris","LPupil","RPupil","LEyewhite","REyewhite","LCornea","RCornea"].forEach(function(n){ tintFromHex(realMaterials[n],p.eye,0.68); });
-    tintFromHex(realMaterials.cloth,w.topColor,0.56);
-    tintFromHex(realMaterials.eldar,p.hair,0.55);
+    ["SkinTorso","SkinHip","SkinHand","SkinNeck","Fingernails","Nipples","SkinHead","SkinScalp","Lips","Nostrils","Eyebrows","Eyelashes","EyeSocket","Lacrimal"].forEach(function(n){ tintFromHex(realMaterials[n],p.skin); });
+    ["LIris","RIris","LPupil","RPupil"].forEach(function(n){ tintFromHex(realMaterials[n],p.eye); });
+    tintFromHex(realMaterials.cloth,w.topColor);
+    tintFromHex(realMaterials.eldar,p.hair);
     realCharacter.traverse(function(o){
       if (!o.material) return;
       var mats=Array.isArray(o.material)?o.material:[o.material];
