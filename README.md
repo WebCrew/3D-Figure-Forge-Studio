@@ -8,6 +8,8 @@ Everything needed for the demo character—geometry, hair, and textures—is
 embedded in `index.html`. There is no build step, backend, account, or data
 collection.
 
+![Figure Forge Studio screenshot](https://raw.githubusercontent.com/WebCrew/3D-Figure-Forge-Studio/main/3D_Figure_Forge_Studio.png)
+
 ## Features
 
 - Real textured OBJ character rendered with Three.js
